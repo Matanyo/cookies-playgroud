@@ -2,24 +2,12 @@ import {
   ClientCookieControls,
   ClientCookieSummary,
 } from "@/components/ClientCookieControls";
-import { cookies } from "next/headers";
-
-const SERVER_COOKIE_NAME = "server-token";
-const SERVER_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+import { headers } from "next/headers";
 
 export default async function Home() {
-  const cookieStore = await cookies();
-  const newServerCookie = `server-${Date.now()}`;
-  cookieStore.set({
-    name: SERVER_COOKIE_NAME,
-    value: newServerCookie,
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: SERVER_COOKIE_MAX_AGE,
-  });
-  const currentServerCookie = newServerCookie;
+  const headerStore = await headers();
+  const currentServerCookie =
+    headerStore.get("x-server-cookie-value") ?? "(not set)";
 
   return (
     <div className="min-h-screen bg-zinc-50 p-8 font-sans text-zinc-900">
@@ -35,9 +23,7 @@ export default async function Home() {
           </p>
           <div className="flex gap-4 text-sm text-zinc-500">
             <ClientCookieSummary />
-            <span className="font-mono">
-              server: {currentServerCookie || "(not set)"}
-            </span>
+            <span className="font-mono">server: {currentServerCookie}</span>
           </div>
         </header>
 
@@ -58,7 +44,7 @@ export default async function Home() {
             <div className="rounded-lg bg-zinc-100 p-3 text-sm">
               Current value:{" "}
               <span className="font-mono text-zinc-800">
-                {currentServerCookie || "(not set)"}
+                {currentServerCookie}
               </span>
             </div>
           </section>
