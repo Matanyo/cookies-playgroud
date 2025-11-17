@@ -8,6 +8,7 @@ export function middleware(request: NextRequest) {
   const newServerCookieValue = `server-${Date.now()}`;
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-server-cookie-value", newServerCookieValue);
+  const cookieExpiresAt = new Date(Date.now() + SERVER_COOKIE_MAX_AGE * 1000);
 
   const response = NextResponse.next({
     request: {
@@ -23,6 +24,7 @@ export function middleware(request: NextRequest) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: SERVER_COOKIE_MAX_AGE,
+    expires: cookieExpiresAt,
   });
 
   return response;
